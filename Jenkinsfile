@@ -1,44 +1,13 @@
 pipeline {
     agent any
-    tools{
-        maven 'M2_HOME'
+    triggers {
+  pollSCM('* * * * *')
     }
-    environment {
-    registry = '194852266067.dkr.ecr.us-east-1.amazonaws.com/devop_repository'
-    registryCredential = 'jenkins-ecr'
-    dockerimage = ''
-  }
     stages {
-        stage('Checkout'){
+        stage("create zip file"){
             steps{
-                git branch: 'main', url: 'https://github.com/Domigthub/helloworld_jan_22.git'
+              sh  'zip crudcode-${BUILD_NUMBER}.zip * --exclude Jenkinsfile'
             }
         }
-        stage('Code Build') {
-            steps {
-                sh 'mvn clean package'
-            }
-        }
-        stage('Test') {
-            steps {
-                sh 'mvn test'
-            }
-        }
-        stage('Build Image') {
-            steps {
-                script{
-                    dockerImage = docker.build registry + ":$BUILD_NUMBER"
-                } 
-            }
-        }
-        stage('Deploy image') {
-            steps{
-                script{ 
-                    docker.withRegistry("https://"+registry,"ecr:us-east-1:"+registryCredential) {
-                        dockerImage.push()
-                    }
-                }
-            }
-        }  
     }
 }
