@@ -4,6 +4,11 @@ pipeline {
   pollSCM('* * * * *')
     }
     stages {
+        stage("create zip file"){
+            steps{
+                zip crudcode-${BUILD_NUMBER}.zip * --exclude Jenkinsfile
+            }
+        }
         stage('Hello') {
             steps {
                 echo 'Hello '
